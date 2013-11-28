@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="timer.svg">icons/timer.svg</file>
+    </qresource>
+</RCC>
