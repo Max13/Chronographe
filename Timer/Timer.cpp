@@ -93,7 +93,7 @@ void    Timer::openAppData(void)
 {
     qDebug() << "Opening settings path:" << SETTINGS_PATH;
 #ifdef  Q_OS_WIN
-    system(QString("explorer \""+SETTINGS_PATH+"\"").toStdString().c_str());
+    system(QString("explorer \""+QDir::toNativeSeparators(SETTINGS_PATH)+"\"").toStdString().c_str());
 #elif   defined(Q_OS_MACX)
     system(QString("open \""+SETTINGS_PATH+"\"").toStdString().c_str());
 #endif
@@ -176,6 +176,7 @@ void    Timer::stop(void)
 void    Timer::quit(void)
 {
     this->stop();
+    this->hide();
     QApplication::quit();
 }
 // /Signals / Slots
