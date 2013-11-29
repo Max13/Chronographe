@@ -1,0 +1,27 @@
+#
+# C++ objects and libs
+#
+*.slo
+*.lo
+*.o
+*.a
+*.la
+*.lai
+*.so
+*.dll
+*.dylib
+
+#
+# Mac specific
+#
+.DS_Store
+
+#
+# Qt specific
+#
+*.pro.user
+*.pro.user.*
+moc_*.cpp
+qrc_*.cpp
+Makefile
+*-build-*
