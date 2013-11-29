@@ -1,5 +1,10 @@
 Chronographe
 ============
+
+Note:
+-----
+First version written in 17 hours... Don't stop on bugs and typo immediately please ;)
+
 Supported settings
 ------------------
 - **prompt_job**: When to prompt the user for the task name
