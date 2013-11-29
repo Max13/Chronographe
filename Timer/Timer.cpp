@@ -93,6 +93,10 @@ QMap<QString,QString>   Timer::defaultSettings(void)
 void    Timer::show(void)
 {
     this->m_sysTray->show();
+    this->m_sysTray->showMessage(QApplication::applicationDisplayName(),
+                                 tr("Right-click on the system-tray icon when you want to start !"),
+                                 QSystemTrayIcon::Information,
+                                 2500);
 }
 
 void    Timer::openAppData(void)
