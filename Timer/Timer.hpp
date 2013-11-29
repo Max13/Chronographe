@@ -7,6 +7,7 @@
 # include   <QSettings>
 # include   <QSystemTrayIcon>
 # include   <QTime>
+# include   <QTimer>
 
 class Timer : public QObject
 {
@@ -17,7 +18,8 @@ class Timer : public QObject
         QSettings                           *m_settings;
         QString                             m_timersPath;
         QSystemTrayIcon                     *m_sysTray;
-        QTime                               *m_timer;
+//        QTime                               *m_timer;
+        QTimer                              m_autoTimer;
 
     public:
         Timer(const QIcon &icon, QObject *parent = 0);
@@ -32,8 +34,7 @@ class Timer : public QObject
         void    show(void);
         void    openAppData(void);
         void    hide(void);
-        void    start(void);
-        void    pause(void);
+        void    start(const bool faked = false);
         void    stop(void);
         void    quit(void);
 };
