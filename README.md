@@ -28,6 +28,10 @@ Supported settings
     - `day` (Default): Every day
     - `month`: Every month
 
+LICENCES
+-------
+Written in C++ with Qt 5. Licenced under [Creative Commons by-nc-sa](http://creativecommons.org/licenses/by-nc-sa/3.0/),
+
 FAQ
 ---
 **Q) What does "dead-simple" spirit means ?**
