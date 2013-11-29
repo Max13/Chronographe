@@ -35,9 +35,15 @@
 <a name="chronographe" class="anchor" href="#chronographe"><span class="octicon octicon-link"></span></a>Chronographe</h1>
 
 <h2>
-<a name="note" class="anchor" href="#note"><span class="octicon octicon-link"></span></a>Note:</h2>
+<a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h2>
 
-<p>First version written in 17 hours... Don't stop on bugs and typo immediately please ;)</p>
+<p>This is a dead simple cross-platform task timer. Dead simple because it's a dead simple system-tray icon with a dead-simple context-menu which has only few actions (Start/Stop, Show timers, quit, ...).</p>
+
+<p>You need to time your task? Nothing simplier, <a href="https://github.com/Max13/Chronographe/releases/latest">download the latest release</a>, start it, right-click on the system-tray icon and choose your action. Be sure to read the "known bugs" not to be surprised. The options are implemented as ini files, an right-click action will reveal it.</p>
+
+<p>If you find a bug, want a feature or want to implement a feature yourself, don't hesitate to <a href="https://github.com/Max13/Chronographe/issues">open an issue</a> on Github, I will see what I can do.</p>
+
+<p>Finally, this app was an idea from <a href="https://github.com/r8e9">@r8e9</a> who needed a dead simple task timer, like <a href="http://joaomoreno.github.io/thyme/">Thyme</a> but cross-platform. So I made a fair-trade with <a href="https://github.com/r8e9">@r8e9</a>, I needed a scanned version of the physical monopoly game, we had a deal.</p>
 
 <h2>
 <a name="supported-settings" class="anchor" href="#supported-settings"><span class="octicon octicon-link"></span></a>Supported settings</h2>
@@ -67,6 +73,16 @@
 </ul>
 </li>
 <li>
+<strong>timers_format</strong>: The datetime format
+
+<ul>
+<li>
+<a href="http://qt-project.org/doc/qt-5.1/qtcore/qdatetime.html#toString"><code>Qt::QDateTime::toString()</code></a> format</li>
+<li>
+<code>yyyy-MM-dd hh:mm:ss</code> (default)</li>
+</ul>
+</li>
+<li>
 <strong>timers_rotation</strong>: When to rotate (change the file) the timers logs. For i.e.: 1 file for 1 rotation
 
 <ul>
@@ -76,7 +92,24 @@
 <code>month</code>: Every month</li>
 </ul>
 </li>
-</ul><p>Have fun !</p>
+</ul><h2>
+<a name="licences" class="anchor" href="#licences"><span class="octicon octicon-link"></span></a>LICENCES</h2>
+
+<p>Written in C++ with Qt 5. Licenced under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons by-nc-sa</a>,</p>
+
+<h2>
+<a name="faq" class="anchor" href="#faq"><span class="octicon octicon-link"></span></a>FAQ</h2>
+
+<p><strong>Q) What does "dead-simple" spirit means ?</strong></p>
+
+<p>A) The "dead-simple app" spirit means this app aims to be dead simple and if you need more advanced options, try to ask it on github issues but not sure I will try to implement them. Usually, I do this because more advanced apps already exist on the market, and the idea is to simplify the needs not re-inventing the wheel ;)</p>
+
+<h2>
+<a name="note" class="anchor" href="#note"><span class="octicon octicon-link"></span></a>Note:</h2>
+
+<p>First version written in ~14 hours... Don't stop on bugs and typo immediately please ;)</p>
+
+<p>Have fun !</p>
         </section>
 
         <footer>
