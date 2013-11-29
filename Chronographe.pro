@@ -18,7 +18,7 @@ HEADERS         +=  Timer/Timer.hpp
 RESOURCES       +=  resources.qrc
 
 mac:ICON        =   icons/timer.icns
-win32RC_FILE    =   icons/timer.rc
+win32:RC_FILE   =   icons/timer.rc
 OTHER_FILES     +=  icons/timer.rc
 
 cache()
