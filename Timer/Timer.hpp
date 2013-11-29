@@ -3,6 +3,7 @@
 
 # include   <QFile>
 # include   <QObject>
+# include   <QMap>
 # include   <QSettings>
 # include   <QSystemTrayIcon>
 # include   <QTime>
@@ -11,18 +12,19 @@ class Timer : public QObject
 {
     Q_OBJECT
     private:
-        QFile           m_timerFile;
-        QSettings       *m_settings;
-        QString         m_timersPath;
-        QSystemTrayIcon *m_sysTray;
-        QTime           *m_timer;
+        QFile                               m_timerFile;
+        static QMap<QString,QString>        m_defaultSettings;
+        QSettings                           *m_settings;
+        QString                             m_timersPath;
+        QSystemTrayIcon                     *m_sysTray;
+        QTime                               *m_timer;
 
     public:
         Timer(const QIcon &icon, QObject *parent = 0);
         ~Timer(void);
 
         void                            init();
-        static QMap<QString,QString>    availableSettings(void);
+        static QMap<QString,QString>    defaultSettings(void);
 
     signals:
 
