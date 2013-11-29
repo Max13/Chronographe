@@ -1,7 +1,9 @@
+#include <QApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QInputDialog>
+#include <QMenu>
 #include <QStandardPaths>
 #include <QtDebug>
 #include <QTextStream>
@@ -42,8 +44,18 @@ Timer::Timer(const QIcon &icon, QObject *parent) : QObject(parent)
     }
     qDebug() << "Settings OK.";
 
+    qDebug() << "Init system tray menu...";
+//    this->m_sysTray->contextMenu()->addAction(tr("Start"), this, SLOT(start()));
+//    this->m_sysTray->contextMenu()->addAction(tr("Stop"), this, SLOT(stop()));
+//    this->m_sysTray->contextMenu()->addSeparator();
+//    this->m_sysTray->contextMenu()->addAction(tr("Quit"), this, SLOT(quit()));
+//    this->m_sysTray->contextMenu()->actions().at(1)->setDisabled(true);
+    qDebug() << "System tray OK";
+
     this->m_sysTray = new QSystemTrayIcon(icon, this);
 }
+
+
 
 // Methods
 QMap<QString,QString>   Timer::availableSettings(void)
@@ -75,16 +87,18 @@ void    Timer::start(void)
     QString     reason;
     QTextStream stream(&this->m_timerFile);
 
+    if (this->m_timer.isActive()) {
+        return;
+    }
     if (this->m_settings->value("prompt_job", "start") == "start") {
-        reason = QInputDialog::getText(0, tr("Reason"), tr("Job"));
+        reason = QInputDialog::getText(0, tr("Reason"), tr("What are you going to start ?"));
     }
 
     if (!this->m_timerFile.open(QFile::Text | QFile::Append)) {
         qFatal("Can't write the timer...");
     }
 
-    stream << QDateTime::currentDateTime().toString("")
-           << "\"yyyy-MMM-dd @ hh:mm:ss\"" << ";"
+    stream << QDateTime::currentDateTime().toString("\"yyyy-MMM-dd @ hh:mm:ss\"") << ";"
            << "" << ";"
            << "\""+reason+"\"" << ";"
            << "" << endl;
@@ -103,22 +117,30 @@ void    Timer::stop(void)
     QString     reason;
     QTextStream stream(&this->m_timerFile);
 
+    if (!this->m_timer.isActive()) {
+        return;
+    }
     this->m_timer.stop();
 
     if (this->m_settings->value("prompt_job", "stop") == "stop") {
-        reason = QInputDialog::getText(0, tr("Reason"), tr("Job"));
+        reason = QInputDialog::getText(0, tr("Reason"), tr("What were you doing ?"));
     }
 
     if (!this->m_timerFile.open(QFile::Text | QFile::Append)) {
         qFatal("Can't write the timer...");
     }
 
-    stream << QDateTime::currentDateTime().toString("")
-           << "" << ";"
-           << "\"yyyy-MMM-dd @ hh:mm:ss\"" << ";"
+    stream << "" << ";"
+           << QDateTime::currentDateTime().toString("\"yyyy-MMM-dd @ hh:mm:ss\"") << ";"
            << "\""+reason+"\"" << ";"
            << "\""+QString::number(this->m_timer.interval())+" ms\"" << endl;
 
     this->m_timerFile.close();
+}
+
+void    Timer::quit(void)
+{
+    this->stop();
+    QApplication::quit();
 }
 // /Signals / Slots

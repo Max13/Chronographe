@@ -19,6 +19,7 @@ class Timer : public QObject
 
     public:
         Timer(const QIcon &icon, QObject *parent = 0);
+        ~Timer(void);
 
         static QMap<QString,QString>    availableSettings(void);
 
@@ -30,6 +31,7 @@ class Timer : public QObject
         void    start(void);
         void    pause(void);
         void    stop(void);
+        void    quit(void);
 };
 
 #endif // TIMER_HPP
