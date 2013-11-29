@@ -15,8 +15,24 @@
 
 Timer::Timer(const QIcon &icon, QObject *parent) : QObject(parent), m_timer(NULL)
 {
-    qDebug() << "Checking settings...";
     this->m_settings = new QSettings(SETTINGS_PATH+"/"+SETTINGS_FILENAME, QSettings::IniFormat);
+    this->m_sysTray = new QSystemTrayIcon(icon, this);
+}
+
+Timer::~Timer(void)
+{
+    delete this->m_settings;
+    this->m_settings = NULL;
+    delete this->m_sysTray;
+    this->m_sysTray = NULL;
+
+}
+
+// Methods
+
+void                    Timer::init(void)
+{
+    qDebug() << "Checking settings...";
     QMap<QString,QString>   aSettings(Timer::availableSettings());
     foreach (const QString &key, aSettings.keys()) {
         if (!this->m_settings->contains(key)) {
@@ -53,23 +69,12 @@ Timer::Timer(const QIcon &icon, QObject *parent) : QObject(parent), m_timer(NULL
     contextMenu->addSeparator();
     contextMenu->addAction(tr("Quit"), this, SLOT(quit()));
     contextMenu->actions().at(1)->setDisabled(true);
-    this->m_sysTray = new QSystemTrayIcon(icon, this);
     this->m_sysTray->setContextMenu(contextMenu);
     qDebug() << "System tray OK";
 
     qDebug() << qApp->applicationName() << "ready !";
 }
 
-Timer::~Timer(void)
-{
-    delete this->m_settings;
-    this->m_settings = NULL;
-    delete this->m_sysTray;
-    this->m_sysTray = NULL;
-
-}
-
-// Methods
 QMap<QString,QString>   Timer::availableSettings(void)
 {
     QMap<QString,QString>   settings;
@@ -115,6 +120,9 @@ void    Timer::start(void)
     qDebug() << "Starting timer...";
     if (this->m_settings->value("prompt_job", "start") == "start") {
         reason = QInputDialog::getText(0, tr("Reason"), tr("What are you going to start ?"));
+        if (!reason.isEmpty() && !reason.isNull()){
+            reason.prepend("\"").append("\"");
+        }
     }
 
     if (!this->m_timerFile.open(QFile::Text | QFile::Append)) {
@@ -123,7 +131,7 @@ void    Timer::start(void)
 
     stream << QDateTime::currentDateTime().toString("\"yyyy-MM-dd hh:mm:ss\"") << ";"
            << "" << ";"
-           << "\""+reason+"\"" << ";"
+           << reason << ";"
            << "" << endl;
 
     this->m_timerFile.close();
@@ -151,6 +159,9 @@ void    Timer::stop(void)
 
     if (this->m_settings->value("prompt_job", "stop") == "stop") {
         reason = QInputDialog::getText(0, tr("Reason"), tr("What were you doing ?"));
+        if (!reason.isEmpty() && !reason.isNull()){
+            reason.prepend("\"").append("\"");
+        }
     }
 
     if (!this->m_timerFile.open(QFile::Text | QFile::Append)) {
@@ -159,8 +170,8 @@ void    Timer::stop(void)
 
     stream << "" << ";"
            << QDateTime::currentDateTime().toString("\"yyyy-MM-dd hh:mm:ss\"") << ";"
-           << "\""+reason+"\"" << ";"
-           << "\""+QTime(0,0).addMSecs(this->m_timer->elapsed()).toString("hh:mm:ss")+"\"" << endl;
+           << reason << ";"
+           << QTime(0,0).addMSecs(this->m_timer->elapsed()).toString("\"hh:mm:ss\"") << endl;
 
     this->m_timerFile.close();
 

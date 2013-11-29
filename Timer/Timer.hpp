@@ -21,6 +21,7 @@ class Timer : public QObject
         Timer(const QIcon &icon, QObject *parent = 0);
         ~Timer(void);
 
+        void                            init();
         static QMap<QString,QString>    availableSettings(void);
 
     signals:

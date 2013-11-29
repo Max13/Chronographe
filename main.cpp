@@ -5,7 +5,7 @@
  *              the timer in order to time a task for instance...
  *              Project inspired by http://joaomoreno.github.io/thyme/
  *
- * @version     0.1
+ * @version     0.2
  * @author      Adnan "Max13" RIHAN <adnan@rihan.fr>
  * @link        http://rihan.fr/
  * @copyright	http://creativecommons.org/licenses/by-nc-sa/3.0/	CC-by-nc-sa 3.0
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 #endif
     a.setApplicationDisplayName("Chronographe");
     a.setApplicationName(a.applicationDisplayName());
-    a.setApplicationVersion("0.1");
+    a.setApplicationVersion("0.2");
     a.setOrganizationDomain("rihan.fr");
     a.setOrganizationName("rihan.fr");
     a.setWindowIcon(icon);
@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
     t = new Timer(icon);
+    t->init();
     t->show();
 
     return a.exec();
