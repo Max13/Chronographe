@@ -31,6 +31,9 @@ int main(int argc, char *argv[])
     QIcon           icon(":/icons/timer.svg");
     Timer           *t;
 
+#ifdef  Q_OS_WIN
+    a.setLibraryPaths(QStringList(a.applicationDirPath()+"/plugins"));
+#endif
     a.setApplicationDisplayName("Chronographe");
     a.setApplicationName(a.applicationDisplayName());
     a.setApplicationVersion("0.1");
