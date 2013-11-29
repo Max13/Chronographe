@@ -3,7 +3,7 @@ Chronographe
 
 Note:
 -----
-First version written in ~15 hours... Don't stop on bugs and typo immediately please ;)
+First version written in ~14 hours... Don't stop on bugs and typo immediately please ;)
 
 Supported settings
 ------------------
