@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
     a.setOrganizationDomain("rihan.fr");
     a.setOrganizationName("rihan.fr");
     a.setWindowIcon(icon);
+    a.setQuitOnLastWindowClosed(false);
 
     QSettings::setDefaultFormat(QSettings::IniFormat);
 

@@ -13,7 +13,7 @@
 #define SETTINGS_FILENAME   QString("settings.ini")
 #define SETTINGS_PATH       QStandardPaths::writableLocation(QStandardPaths::DataLocation)
 
-Timer::Timer(const QIcon &icon, QObject *parent) : QObject(parent)
+Timer::Timer(const QIcon &icon, QObject *parent) : QObject(parent), m_timer(NULL)
 {
     qDebug() << "Checking settings...";
     this->m_settings = new QSettings(SETTINGS_PATH+"/"+SETTINGS_FILENAME, QSettings::IniFormat);
@@ -35,27 +35,39 @@ Timer::Timer(const QIcon &icon, QObject *parent) : QObject(parent)
             QString rotation(aSettings.value(key));
             if (rotation == "day") {
                 this->m_timerFile.setFileName(this->m_timersPath+"/"
-                                                  +QDateTime::currentDateTime().toString("yyyy-MM-dd.csv"));
+                                              +QDateTime::currentDateTime().toString("yyyy-MM-dd'.csv'"));
             } else if (rotation == "month") {
                 this->m_timerFile.setFileName(this->m_timersPath+"/"
-                                                  +QDateTime::currentDateTime().toString("yyyy-MM.csv"));
+                                              +QDateTime::currentDateTime().toString("yyyy-MM'.csv'"));
             }
         }
     }
     qDebug() << "Settings OK.";
 
     qDebug() << "Init system tray menu...";
-//    this->m_sysTray->contextMenu()->addAction(tr("Start"), this, SLOT(start()));
-//    this->m_sysTray->contextMenu()->addAction(tr("Stop"), this, SLOT(stop()));
-//    this->m_sysTray->contextMenu()->addSeparator();
-//    this->m_sysTray->contextMenu()->addAction(tr("Quit"), this, SLOT(quit()));
-//    this->m_sysTray->contextMenu()->actions().at(1)->setDisabled(true);
+    QMenu   *contextMenu = new QMenu;
+    contextMenu->addAction(tr("Start"), this, SLOT(start()));
+    contextMenu->addAction(tr("Stop"), this, SLOT(stop()));
+    contextMenu->addSeparator();
+    contextMenu->addAction(tr("Show app data"), this, SLOT(openAppData()));
+    contextMenu->addSeparator();
+    contextMenu->addAction(tr("Quit"), this, SLOT(quit()));
+    contextMenu->actions().at(1)->setDisabled(true);
+    this->m_sysTray = new QSystemTrayIcon(icon, this);
+    this->m_sysTray->setContextMenu(contextMenu);
     qDebug() << "System tray OK";
 
-    this->m_sysTray = new QSystemTrayIcon(icon, this);
+    qDebug() << qApp->applicationName() << "ready !";
 }
 
+Timer::~Timer(void)
+{
+    delete this->m_settings;
+    this->m_settings = NULL;
+    delete this->m_sysTray;
+    this->m_sysTray = NULL;
 
+}
 
 // Methods
 QMap<QString,QString>   Timer::availableSettings(void)
@@ -77,6 +89,16 @@ void    Timer::show(void)
     this->m_sysTray->show();
 }
 
+void    Timer::openAppData(void)
+{
+    qDebug() << "Opening settings path:" << SETTINGS_PATH;
+#ifdef  Q_OS_WIN
+    system(QString("explorer \""+SETTINGS_PATH+"\"").toStdString().c_str());
+#elif   defined(Q_OS_MACX)
+    system(QString("open \""+SETTINGS_PATH+"\"").toStdString().c_str());
+#endif
+}
+
 void    Timer::hide(void)
 {
     this->m_sysTray->hide();
@@ -87,9 +109,10 @@ void    Timer::start(void)
     QString     reason;
     QTextStream stream(&this->m_timerFile);
 
-    if (this->m_timer.isActive()) {
+    if (this->m_timer != NULL) {
         return;
     }
+    qDebug() << "Starting timer...";
     if (this->m_settings->value("prompt_job", "start") == "start") {
         reason = QInputDialog::getText(0, tr("Reason"), tr("What are you going to start ?"));
     }
@@ -98,14 +121,19 @@ void    Timer::start(void)
         qFatal("Can't write the timer...");
     }
 
-    stream << QDateTime::currentDateTime().toString("\"yyyy-MMM-dd @ hh:mm:ss\"") << ";"
+    stream << QDateTime::currentDateTime().toString("\"yyyy-MM-dd hh:mm:ss\"") << ";"
            << "" << ";"
            << "\""+reason+"\"" << ";"
            << "" << endl;
 
     this->m_timerFile.close();
 
-    this->m_timer.start();
+    this->m_timer = new QTime;
+    this->m_timer->start();
+
+    this->m_sysTray->showMessage(tr("Started"), tr("Timer Started !"), QSystemTrayIcon::Information, 2000);
+    this->m_sysTray->contextMenu()->actions().at(0)->setDisabled(true);
+    this->m_sysTray->contextMenu()->actions().at(1)->setEnabled(true);
 }
 
 void    Timer::pause(void)
@@ -117,10 +145,9 @@ void    Timer::stop(void)
     QString     reason;
     QTextStream stream(&this->m_timerFile);
 
-    if (!this->m_timer.isActive()) {
+    if (this->m_timer == NULL) {
         return;
     }
-    this->m_timer.stop();
 
     if (this->m_settings->value("prompt_job", "stop") == "stop") {
         reason = QInputDialog::getText(0, tr("Reason"), tr("What were you doing ?"));
@@ -131,11 +158,19 @@ void    Timer::stop(void)
     }
 
     stream << "" << ";"
-           << QDateTime::currentDateTime().toString("\"yyyy-MMM-dd @ hh:mm:ss\"") << ";"
+           << QDateTime::currentDateTime().toString("\"yyyy-MM-dd hh:mm:ss\"") << ";"
            << "\""+reason+"\"" << ";"
-           << "\""+QString::number(this->m_timer.interval())+" ms\"" << endl;
+           << "\""+QTime(0,0).addMSecs(this->m_timer->elapsed()).toString("hh:mm:ss")+"\"" << endl;
 
     this->m_timerFile.close();
+
+    qDebug() << "Stopping timer...";
+    delete this->m_timer;
+    this->m_timer = NULL;
+
+    this->m_sysTray->showMessage(tr("Stopped"), tr("Timer Stopped !"), QSystemTrayIcon::Information, 2000);
+    this->m_sysTray->contextMenu()->actions().at(0)->setEnabled(true);
+    this->m_sysTray->contextMenu()->actions().at(1)->setDisabled(true);
 }
 
 void    Timer::quit(void)
