@@ -15,7 +15,7 @@ SOURCES         +=  main.cpp\
 
 HEADERS         +=  Timer/Timer.hpp
 
-RESOURCES       +=  resources.qrc
+RESOURCES       +=  resources/resources.qrc
 
 TRANSLATIONS    =   i18n/lang_fr.ts
 

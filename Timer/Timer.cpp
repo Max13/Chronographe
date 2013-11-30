@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
+#include <QIcon>
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
@@ -18,11 +19,12 @@
 
 QMap<QString,QString>   Timer::m_defaultSettings;
 
-Timer::Timer(const QIcon &icon, QObject *parent) : QObject(parent)
+Timer::Timer(const QIcon &normalIcon, const QIcon &startedIcon, QObject *parent)
+    : QObject(parent), m_normalIcon(normalIcon), m_startedIcon(startedIcon)
 {
     Timer::m_defaultSettings = Timer::defaultSettings();
     this->m_settings = new QSettings(SETTINGS_PATH+"/"+SETTINGS_FILENAME, QSettings::IniFormat);
-    this->m_sysTray = new QSystemTrayIcon(icon, this);
+    this->m_sysTray = new QSystemTrayIcon(normalIcon, this);
 }
 
 Timer::~Timer(void)
@@ -99,10 +101,12 @@ void                    Timer::switchContextMenu(const QString &to)
     QAction *action(this->m_sysTray->contextMenu()->actions().takeFirst());
 
     if (to == "start") {
+        this->m_sysTray->setIcon(this->m_normalIcon);
         action->disconnect();
         action->setText(tr("Start"));
         connect(action, SIGNAL(triggered()), SLOT(start()));
     } else if (to == "stop") {
+        this->m_sysTray->setIcon(this->m_startedIcon);
         action->disconnect();
         action->setText(tr("Stop"));
         connect(action, SIGNAL(triggered()), SLOT(stop()));

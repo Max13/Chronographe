@@ -12,13 +12,15 @@ class Timer : public QObject
     Q_OBJECT
     private:
         QFile                               m_timerFile;
+        const QIcon                         &m_normalIcon;
+        const QIcon                         &m_startedIcon;
         static QMap<QString,QString>        m_defaultSettings;
         QSettings                           *m_settings;
         QString                             m_timersPath;
         QSystemTrayIcon                     *m_sysTray;
 
     public:
-        Timer(const QIcon &icon, QObject *parent = 0);
+        Timer(const QIcon &normalIcon, const QIcon &startedIcon, QObject *parent = 0);
         ~Timer(void);
 
         void                            init();
