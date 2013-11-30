@@ -104,8 +104,8 @@ void                    Timer::switchContextMenu(const QString &to)
         connect(action, SIGNAL(triggered()), SLOT(start()));
     } else if (to == "stop") {
         action->disconnect();
-        action->setText(tr("Start"));
-        connect(action, SIGNAL(triggered()), SLOT(start()));
+        action->setText(tr("Stop"));
+        connect(action, SIGNAL(triggered()), SLOT(stop()));
     }
 }
 
@@ -131,7 +131,7 @@ void    Timer::show(void)
 {
     this->m_sysTray->show();
     this->m_sysTray->showMessage(QApplication::applicationDisplayName(),
-                                 tr("Right-click on the system-tray icon when you want to start !"),
+                                 tr("Right-click on the system-tray icon to begin."),
                                  QSystemTrayIcon::Information,
                                  2500);
 }
@@ -166,7 +166,7 @@ void    Timer::start(const bool faked)
         ) == "start") {
         reason = QInputDialog::getText(0,
                                        qApp->applicationDisplayName(),
-                                       tr("What are you going to start ?"));
+                                       tr("What are you going to do?"));
         if (!reason.isEmpty() && !reason.isNull()) {
             this->m_settings->setValue("last/reason", reason);
         }
@@ -174,20 +174,20 @@ void    Timer::start(const bool faked)
 
     qDebug() << "Starting timer...";
     this->m_settings->setValue("last/start", QDateTime::currentDateTime());
-    this->m_sysTray->showMessage(tr("Started"), tr("Timer Started !"), QSystemTrayIcon::Information, 2000);
+    this->m_sysTray->showMessage(tr("Started"), tr("Timer started!"), QSystemTrayIcon::Information, 2000);
 
     this->switchContextMenu("stop");
 }
 
 void    Timer::stop(void)
 {
-    QDateTime   lastStartedDateTime(this->m_settings->value("last/start").toDateTime());
-    qint64      epoch;
+    QDateTime   startedDateTime(this->m_settings->value("last/start").toDateTime());
+    int         secondsElapsed;
     QString     dateTimeFormat;
     QString     reason;
     QTextStream stream;
 
-    if (lastStartedDateTime.isNull()) {
+    if (startedDateTime.isNull()) {
         this->switchContextMenu("start");
         return;
     }
@@ -201,7 +201,7 @@ void    Timer::stop(void)
         ) == "stop") {
         reason = QInputDialog::getText(0,
                                        qApp->applicationDisplayName(),
-                                       tr("What are you going to start ?"),
+                                       tr("What were you doing?"),
                                        QLineEdit::Normal,
                                        reason);
     }
@@ -211,23 +211,23 @@ void    Timer::stop(void)
                      .toString().prepend("\"").append("\"");
     reason.prepend("\"").append("\"");
 
-    epoch = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    epoch -= lastStartedDateTime.toMSecsSinceEpoch();
+    secondsElapsed = QDateTime::currentMSecsSinceEpoch() / 1000;
+    secondsElapsed -= startedDateTime.toMSecsSinceEpoch() / 1000;
 
     if (!this->m_timerFile.open(QFile::Text | QFile::Append)) {
         qFatal("Can't open the timer file...");
     }
 
-    qDebug() << "Stopping at:" << QTime().addMSecs(epoch).toString("hh:mm:ss").prepend("\"").append("\"");
-    stream << lastStartedDateTime.toString(dateTimeFormat) << ";"           // Start
+    stream << startedDateTime.toString(dateTimeFormat) << ";"               // Start
            << QDateTime::currentDateTime().toString(dateTimeFormat) << ";"  // Stop
            << reason << ";"
-           << QTime().addMSecs(epoch).toString("hh:mm:ss").prepend("\"").append("\"") << endl;
+           << QTime(0,0).addSecs(secondsElapsed).toString("hh:mm:ss").prepend("\"").append("\"") << endl;
 
     this->m_timerFile.close();
+    this->m_settings->remove("last");
 
     qDebug() << "Timer stopped.";
-    this->m_sysTray->showMessage(tr("Stopped"), tr("Timer Stopped !"), QSystemTrayIcon::Information, 2000);
+    this->m_sysTray->showMessage(tr("Stopped"), tr("Timer stopped!"), QSystemTrayIcon::Information, 2000);
 
     this->switchContextMenu("start");
 }
