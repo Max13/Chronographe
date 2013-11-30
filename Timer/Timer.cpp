@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 #include <QtDebug>
+#include <QTime>
 #include <QTextStream>
 
 #include "Timer.hpp"
@@ -93,6 +94,21 @@ void                    Timer::init(void)
     qDebug() << qApp->applicationName() << "ready !";
 }
 
+void                    Timer::switchContextMenu(const QString &to)
+{
+    QAction *action(this->m_sysTray->contextMenu()->actions().takeFirst());
+
+    if (to == "start") {
+        action->disconnect();
+        action->setText(tr("Start"));
+        connect(action, SIGNAL(triggered()), SLOT(start()));
+    } else if (to == "stop") {
+        action->disconnect();
+        action->setText(tr("Start"));
+        connect(action, SIGNAL(triggered()), SLOT(start()));
+    }
+}
+
 QMap<QString,QString>   Timer::defaultSettings(void)
 {
     if (!Timer::m_defaultSettings.isEmpty()) {
@@ -100,7 +116,6 @@ QMap<QString,QString>   Timer::defaultSettings(void)
     }
     QMap<QString,QString>   settings;
 
-    settings["autosave"] = "5";
     settings["prompt_job"] = "start";
     settings["timers_dir"] = "./timers";
     settings["timers_format"] = "yyyy-MM-dd hh:mm:ss";
@@ -140,8 +155,12 @@ void    Timer::start(const bool faked)
 {
     QString     reason;
 
-    if (!faked
-        && this->m_settings->value(
+    if (faked) {
+        this->switchContextMenu("stop");
+        return;
+    }
+
+    if (this->m_settings->value(
                 "prompt_job",
                 this->defaultSettings().key("prompt_job")
         ) == "start") {
@@ -153,23 +172,28 @@ void    Timer::start(const bool faked)
         }
     }
 
-    if (!faked) {
-        qDebug() << "Starting timer...";
-        this->m_settings->setValue("last/start", QDateTime::currentDateTime());
-        this->m_sysTray->showMessage(tr("Started"), tr("Timer Started !"), QSystemTrayIcon::Information, 2000);
-    }
+    qDebug() << "Starting timer...";
+    this->m_settings->setValue("last/start", QDateTime::currentDateTime());
+    this->m_sysTray->showMessage(tr("Started"), tr("Timer Started !"), QSystemTrayIcon::Information, 2000);
 
-    QAction *action(this->m_sysTray->contextMenu()->actions().takeFirst());
-    action->setText(tr("Stop"));
-    disconnect(this, SLOT(start())); // TODO
-    connect(action, SIGNAL(triggered()), SLOT(stop()));
+    this->switchContextMenu("stop");
 }
 
 void    Timer::stop(void)
 {
+    QDateTime   lastStartedDateTime(this->m_settings->value("last/start").toDateTime());
+    qint64      epoch;
     QString     dateTimeFormat;
-    QString     reason(this->m_settings->value("last/reason").toString());
-    QTextStream stream(&this->m_timerFile);
+    QString     reason;
+    QTextStream stream;
+
+    if (lastStartedDateTime.isNull()) {
+        this->switchContextMenu("start");
+        return;
+    }
+
+    reason = this->m_settings->value("last/reason").toString();
+    stream.setDevice(&this->m_timerFile);
 
     if (this->m_settings->value(
                 "prompt_job",
@@ -187,24 +211,25 @@ void    Timer::stop(void)
                      .toString().prepend("\"").append("\"");
     reason.prepend("\"").append("\"");
 
+    epoch = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    epoch -= lastStartedDateTime.toMSecsSinceEpoch();
+
     if (!this->m_timerFile.open(QFile::Text | QFile::Append)) {
         qFatal("Can't open the timer file...");
     }
 
-    stream << this->m_settings->value("last/start").toDateTime().toString(dateTimeFormat) << ";"// Start
-           << QDateTime::currentDateTime().toString(dateTimeFormat) << ";"                      // Stop
+    qDebug() << "Stopping at:" << QTime().addMSecs(epoch).toString("hh:mm:ss").prepend("\"").append("\"");
+    stream << lastStartedDateTime.toString(dateTimeFormat) << ";"           // Start
+           << QDateTime::currentDateTime().toString(dateTimeFormat) << ";"  // Stop
            << reason << ";"
-           << QTime(0,0).addMSecs(this->m_timer->elapsed()).toString("\"hh:mm:ss\"") << endl; // TODO
+           << QTime().addMSecs(epoch).toString("hh:mm:ss").prepend("\"").append("\"") << endl;
 
     this->m_timerFile.close();
 
     qDebug() << "Timer stopped.";
     this->m_sysTray->showMessage(tr("Stopped"), tr("Timer Stopped !"), QSystemTrayIcon::Information, 2000);
 
-    QAction *action(this->m_sysTray->contextMenu()->actions().takeFirst());
-    action->setText(tr("Stop"));
-    disconnect(this, SLOT(stop())); // TODO
-    connect(action, SIGNAL(triggered()), SLOT(start()));
+    this->switchContextMenu("start");
 }
 
 void    Timer::quit(void)

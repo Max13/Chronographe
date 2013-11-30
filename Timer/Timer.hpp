@@ -6,7 +6,6 @@
 # include   <QMap>
 # include   <QSettings>
 # include   <QSystemTrayIcon>
-# include   <QTime>
 # include   <QTimer>
 
 class Timer : public QObject
@@ -18,7 +17,6 @@ class Timer : public QObject
         QSettings                           *m_settings;
         QString                             m_timersPath;
         QSystemTrayIcon                     *m_sysTray;
-//        QTime                               *m_timer;
         QTimer                              m_autoTimer;
 
     public:
@@ -26,6 +24,7 @@ class Timer : public QObject
         ~Timer(void);
 
         void                            init();
+        void                            switchContextMenu(const QString &to);
         static QMap<QString,QString>    defaultSettings(void);
 
     signals:
