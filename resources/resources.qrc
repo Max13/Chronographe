@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="timer.svg">../icons/timer.svg</file>
+        <file alias="timer_g.svg">../icons/timer_g.svg</file>
+    </qresource>
+    <qresource prefix="/i18n">
+        <file alias="lang_fr.qm">../i18n/lang_fr.qm</file>
+    </qresource>
+</RCC>
