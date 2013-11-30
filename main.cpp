@@ -5,7 +5,7 @@
  *              the timer in order to time a task for instance...
  *              Project inspired by http://joaomoreno.github.io/thyme/
  *
- * @version     0.2
+ * @version     0.3
  * @author      Adnan "Max13" RIHAN <adnan@rihan.fr>
  * @link        http://rihan.fr/
  * @copyright	http://creativecommons.org/licenses/by-nc-sa/3.0/	CC-by-nc-sa 3.0
@@ -21,7 +21,10 @@
 
 #include <QApplication>
 #include <QIcon>
+#include <QLocale>
 #include <QSettings>
+#include <QTranslator>
+#include <QtDebug>
 
 #include "Timer/Timer.hpp"
 
@@ -29,6 +32,7 @@ int main(int argc, char *argv[])
 {
     QApplication    a(argc, argv);
     QIcon           icon(":/icons/timer.svg");
+    QTranslator     translator;
     Timer           *t;
 
 #ifdef  Q_OS_WIN
@@ -36,11 +40,19 @@ int main(int argc, char *argv[])
 #endif
     a.setApplicationDisplayName("Chronographe");
     a.setApplicationName(a.applicationDisplayName());
-    a.setApplicationVersion("0.2");
+    a.setApplicationVersion("0.3");
     a.setOrganizationDomain("rihan.fr");
     a.setOrganizationName("rihan.fr");
     a.setWindowIcon(icon);
     a.setQuitOnLastWindowClosed(false);
+
+//    QTranslator qtTranslator;
+//    qtTranslator.load("qt_" + QLocale::system().name(),
+//                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+//    app.installTranslator(&qtTranslator);
+
+    qDebug() << "Translation loaded:" << translator.load(QLocale::system(), "lang", "_");
+    a.installTranslator(&translator);
 
     QSettings::setDefaultFormat(QSettings::IniFormat);
 

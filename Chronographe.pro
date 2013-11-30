@@ -17,6 +17,8 @@ HEADERS         +=  Timer/Timer.hpp
 
 RESOURCES       +=  resources.qrc
 
+TRANSLATIONS    =   i18n/lang_fr.ts
+
 mac:ICON        =   icons/timer.icns
 win32:RC_FILE   =   icons/timer.rc
 OTHER_FILES     +=  icons/timer.rc\
